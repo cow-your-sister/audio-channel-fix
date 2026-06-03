@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">template</string>
+    <string name="app_description">A LSPosed module template.</string>
+</resources>
