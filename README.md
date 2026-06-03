@@ -4,7 +4,7 @@ A minimal [LSPosed](https://github.com/LSPosed/LSPosed) module template using th
 
 ## Features
 
-- Kotlin with modern `XposedModule` API (no legacy `IXposedHook*` interfaces)
+- Kotlin with modern `XposedModule` API
 - Logging utility that outputs to both logcat and the LSPosed module logger
 - Version catalog (`libs.versions.toml`) for dependency management
 - ProGuard rules pre-configured for release builds
@@ -13,12 +13,12 @@ A minimal [LSPosed](https://github.com/LSPosed/LSPosed) module template using th
 
 ### 1. Change module identity
 
-- Rename the package from `com.example.template` to your own (use **Refactor → Rename** in Android Studio).
+- Rename the package from `com.example.template` to your own.
 - Update `namespace` in `app/build.gradle.kts`.
 
 ### 2. Configure module metadata
 
-- `app/src/main/res/values/strings.xml` — set `app_name` and `app_description` (shown in the LSPosed manager).
+- `app/src/main/res/values/strings.xml` — set `app_name` and `app_description`.
 - `app/src/main/resources/META-INF/xposed/scope.list` — list target package names, one per line. Use `system` for system framework hooks.
 
 ### 3. Write your hooks
@@ -32,10 +32,10 @@ A minimal [LSPosed](https://github.com/LSPosed/LSPosed) module template using th
 
 ```bash
 ./gradlew assembleDebug    # debug build
-./gradlew assembleRelease  # release build (minified)
+./gradlew assembleRelease  # release build
 ```
 
-Install the APK, enable the module in LSPosed, and reboot (or force-stop the target app).
+Install the APK, enable the module in LSPosed, and reboot.
 
 ## Project Structure
 
