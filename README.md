@@ -4,6 +4,7 @@ A minimal [LSPosed](https://github.com/LSPosed/LSPosed) module template using th
 
 ## Features
 
+- No icons, no UI, no extra dependencies
 - Kotlin with modern `XposedModule` API
 - Logging utility that outputs to both logcat and the LSPosed module logger
 - Version catalog (`libs.versions.toml`) for dependency management
