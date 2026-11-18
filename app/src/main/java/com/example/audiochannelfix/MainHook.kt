@@ -1,6 +1,7 @@
 package com.example.audiochannelfix
 
 import com.example.audiochannelfix.utils.logI
+import com.example.audiochannelfix.utils.logD
 import com.example.audiochannelfix.utils.xposedLog
 
 import io.github.libxposed.api.XposedModule
@@ -35,10 +36,8 @@ class MainHook : XposedModule() {
     // 包准备就绪
     override fun onPackageReady(param: PackageReadyParam) {
 
-        logI("$TAG: onPackageReady, pkg=${param.packageName}")
-        //super.onPackageReady(param)
-        val pkg = param.packageName
-        logI("Injecting into $pkg (API ${apiVersion})")
+        logI("$TAG: onPackageReady, Injecting into ${param.packageName}")
+        super.onPackageReady(param)
 
         hookLegacyAudioTrackConstructor()
         hookAudioAttributesBuilder()
@@ -48,18 +47,28 @@ class MainHook : XposedModule() {
     // ---- 通道一：AudioTrack(int streamType, ...) ----
     private fun hookLegacyAudioTrackConstructor() {
         // 精确匹配第一个参数为 int 的构造函数，避免误伤其他重载
-        AudioTrack::class.java.declaredConstructors
+        val ctors = AudioTrack::class.java.declaredConstructors
             .filter { it.parameterTypes.firstOrNull() == Int::class.javaPrimitiveType }
-            .forEach { ctor ->
+        
+        logD("AudioTrack: found ${ctors.size} candidate constructor(s)")
+
+        ctors.forEach { ctor ->
+            try {
+                logD("AudioTrack: installing hook on ${ctor.toGenericString()}")
                 hook(ctor).intercept { param ->
-                val streamType = param.args[0] as? Int
-                if (streamType == AudioManager.STREAM_VOICE_CALL) {
+                    val streamType = param.args[0] as? Int
+                    logD("AudioTrack ctor invoked: streamType=$streamType, argCount=${param.args.size}")
+
+                    if (streamType == AudioManager.STREAM_VOICE_CALL) {
                         param.args[0] = AudioManager.STREAM_MUSIC
-                        logI("AudioTrack ctor: VOICE_CALL -> MUSIC")
+                        logD("AudioTrack ctor: VOICE_CALL -> MUSIC")
                     }
                     param.proceed()
                 }
+            } catch (t: Throwable) {
+                logD("AudioTrack: hook install failed: ${t}")
             }
+        }
     }
 
     // ---- 通道二：AudioAttributes.Builder.setLegacyStreamType(int) ----
@@ -69,6 +78,7 @@ class MainHook : XposedModule() {
 
         hook(method).intercept { param ->
             val streamType = param.args[0] as? Int
+            logI("setLegacyStreamType invoked: streamType=$streamType")
             if (streamType == AudioManager.STREAM_VOICE_CALL) {
                 param.args[0] = AudioManager.STREAM_MUSIC
                 logI("setLegacyStreamType: VOICE_CALL -> MUSIC")
