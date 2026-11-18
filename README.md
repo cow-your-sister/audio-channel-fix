@@ -46,10 +46,12 @@ Binder 的 `Parcel` 按**调用时的参数值**序列化。在第 ① 步把 `S
 
 ### Hook 的两个目标
 
-| 目标                                               | 覆盖场景                                        |
-| -------------------------------------------------- | ----------------------------------------------- |
-| `AudioTrack` 第一个参数为 `int` 的构造函数         | 传统 `new AudioTrack(int streamType, ...)` 路径 |
-| `AudioAttributes.Builder.setLegacyStreamType(int)` | 现代 `AudioAttributes` 声明路径                 |
+| 目标                                                        | 覆盖场景                                                       |
+| ----------------------------------------------------------- | -------------------------------------------------------------- |
+| `AudioTrack` 全部构造函数                                   | 传统流类型和以 `AudioAttributes` 开头的构造路径                |
+| `AudioAttributes.Builder.setUsage(int)`                     | 用 `USAGE_VOICE_COMMUNICATION` / `USAGE_VOICE_CALL` 声明的路径 |
+| `AudioAttributes.Builder.setLegacyStreamType(int)`          | 通过旧流类型 API 声明的路径                                    |
+| `AudioTrack.Builder.setAudioAttributes(AudioAttributes)`    | 通过 `AudioTrack.Builder` 设置音频属性的路径                   |
 
 两条路径都要拦，因为不同应用（乃至同一应用的不同版本）可能走不同路径。
 
@@ -129,12 +131,12 @@ AudioChannelFix-release-1.0.6.apk
 3. 过滤日志：
 
    ```bash
-   adb logcat -s AudioChannelFix
+   adb logcat -s audiochannelfix
    ```
 
    应能看到 `VOICE_CALL -> MUSIC` 的替换记录；
 
-   > 日志仅在**发生替换时**输出
+   > 入口日志使用 INFO 级别；Hook 诊断和参数日志使用 DEBUG 级别，仅在 debug 构建中输出。
 
 4. 观察系统实时字幕是否开始识别会议音频，以及会议期间音乐是否仍可正常播放。
 
@@ -142,7 +144,7 @@ AudioChannelFix-release-1.0.6.apk
 
 ## 已知限制
 
-- **仅覆盖声明层**。若某个应用绕过 `AudioTrack` 的 Java 构造函数和 `setLegacyStreamType`，直接走 native 层（如 NDK 直接调用 `libmedia`），本模块无法拦截。这类场景需在 audioserver 侧 Hook `getOutputForAttr`，复杂度和风险都显著更高。
+- **仅覆盖 Java 声明层**。若某个应用绕过 `AudioTrack` 的 Java 构造函数、`AudioAttributes.Builder` 和 `AudioTrack.Builder`，直接走 native 层（如 NDK 直接调用 `libmedia`），本模块无法拦截。这类场景需在 audioserver 侧 Hook `getOutputForAttr`，复杂度和风险都显著更高。
 - **只处理 `STREAM_VOICE_CALL`**。若应用声明的是其他通话相关流类型（如 `STREAM_VOICE_COMMUNICATION` 经某些 ROM 映射后的变体），需在判断条件中按实际机型补充。
 - **定制 ROM 差异**。部分厂商对音频策略有深度定制，替换流类型后仍可能被厂商的通话静音逻辑波及，需逐机型验证。
 - **音频会话行为可能变化**。改为媒体流后，音频焦点、AEC/NS 等通话优化不再生效，回声消除效果可能与原生通话路径不同。
