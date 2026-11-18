@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">template</string>
-    <string name="app_description">A LSPosed module template.</string>
+    <string name="app_name">AudioChannelFix</string>
+    <string name="app_description">一个简单的xp模块，将app请求的电话通道音频流改写为媒体通道</string>
 </resources>

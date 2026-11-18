@@ -1,10 +1,10 @@
-package com.example.template.utils
+package com.example.audiochannelfix.utils
 
 import android.util.Log
-import com.example.template.BuildConfig
+import com.example.audiochannelfix.BuildConfig
 import io.github.libxposed.api.XposedInterface
 
-const val LOG_TAG = "template"
+const val LOG_TAG = "audiochannelfix"
 
 var xposedLog: XposedInterface? = null
 

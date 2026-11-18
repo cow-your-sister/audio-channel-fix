@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.template"
+    namespace = "com.example.audiochannelfix"
 
     buildFeatures { buildConfig = true }
 
