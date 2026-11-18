@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.audiochannelfix.BuildConfig
 import io.github.libxposed.api.XposedInterface
 
-const val LOG_TAG = "audiochannelfix"
+const val LOG_TAG = "AudioChannelFix"
 
 var xposedLog: XposedInterface? = null
 

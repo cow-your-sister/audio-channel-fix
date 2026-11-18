@@ -1,8 +1,12 @@
 package com.example.audiochannelfix
 
 import com.example.audiochannelfix.utils.logI
+import com.example.audiochannelfix.utils.xposedLog
 
 import io.github.libxposed.api.XposedModule
+import io.github.libxposed.api.XposedModuleInterface.ModuleLoadedParam
+import io.github.libxposed.api.XposedModuleInterface.PackageLoadedParam
+import io.github.libxposed.api.XposedModuleInterface.SystemServerStartingParam
 import io.github.libxposed.api.XposedModuleInterface.PackageReadyParam
 
 import android.media.AudioAttributes
@@ -18,7 +22,20 @@ import android.media.AudioTrack
  */
 class MainHook : XposedModule() {
 
+    private companion object {
+        const val TAG = "AudioChannelFix"
+    }
+
+    // 模块被加载进进程时最先触发
+    override fun onModuleLoaded(param: ModuleLoadedParam) {
+        xposedLog = this
+        logI("$TAG: onModuleLoaded, process=${param.processName}")
+    }
+
+    // 包准备就绪
     override fun onPackageReady(param: PackageReadyParam) {
+
+        logI("$TAG: onPackageReady, pkg=${param.packageName}")
         //super.onPackageReady(param)
         val pkg = param.packageName
         logI("Injecting into $pkg (API ${apiVersion})")
